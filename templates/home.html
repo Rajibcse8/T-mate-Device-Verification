@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Requests</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+    <title>Requests</title>
+  </head>
+  <body>
+    <h1>Requests</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Request ID</th>
+          <th>Device ID</th>
+          <th>Company</th>
+          <th>Garden ID</th>
+          <th>Requester Name</th>
+          <th>Requester Contact</th>
+          <th>STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for request in requests %}
+        <tr>
+          <td>{{ request[0] }}</td>
+          <td>{{ request[1] }}</td>
+          <td>{{ request[2] }}</td>
+          <td>{{ request[3] }}</td>
+          <td>{{ request[4] }}</td>
+          <td>{{ request[5] }}</td>
+          <td>{{ request[6] }}</td>
+          <td>
+            {{ 'Requested' if request[7]==1 else 'APPROVED' if request[7]==2
+            else 'BLOKED' }}
+          </td>
+
+          <td>
+            <a href="/edit_request/{{ request[0] }}/2" class="btn btn-primary"
+              >APPROVE</a
+            >
+          </td>
+          <td>
+            <a href="/edit_request/{{ request[0] }}/4" class="btn btn-danger"
+              >BLOCK</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!-- <a href="/new_request">New Request</a> -->
+  </body>
+</html>
