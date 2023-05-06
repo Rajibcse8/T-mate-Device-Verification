@@ -23,6 +23,7 @@
           <th>Requester Name</th>
           <th>Requester Contact</th>
           <th>STATUS</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -39,21 +40,43 @@
             {{ 'Requested' if request[7]==1 else 'APPROVED' if request[7]==2
             else 'BLOKED' }}
           </td>
-
           <td>
+            <select name="status" id="status">
+              <option value="">Select STATUS</option>
+
+              {% if request[7] == 1 %}
+              <option value="1" disabled>Requested</option>
+              <option value="2">APPROVED</option>
+              <option value="3">Bloked</option>
+              {%elif request[7]==2%}
+              <option value="1">Requested</option>
+              <option value="2" disabled>APPROVED</option>
+              <option value="3">Bloked</option>
+              {%else%}
+              <option value="1">Requested</option>
+              <option value="2">APPROVED</option>
+              <option value="3" disabled>Bloked</option>
+              {% endif %}
+            </select>
+          </td>
+
+          <!-- <td>
             <a href="/edit_request/{{ request[0] }}/2" class="btn btn-primary"
               >APPROVE</a
             >
-          </td>
-          <td>
+          </td> -->
+          <!-- <td>
             <a href="/edit_request/{{ request[0] }}/4" class="btn btn-danger"
               >BLOCK</a
             >
-          </td>
+          </td> -->
         </tr>
         {% endfor %}
       </tbody>
     </table>
     <!-- <a href="/new_request">New Request</a> -->
+
+    <!--AJAX CODE-->
+    <script type="text/javascript"></script>
   </body>
 </html>
