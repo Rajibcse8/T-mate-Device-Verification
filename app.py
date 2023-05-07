@@ -3,7 +3,7 @@ import random
 import uuid
 
 import mariadb
-import pymysql
+# import pymysql
 from flask import Flask, json, jsonify, redirect, render_template, request
 
 app = Flask(__name__)

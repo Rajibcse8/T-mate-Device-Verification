@@ -10,9 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
     <title>Requests</title>
   </head>
-  <body>
-    <h1>Requests</h1>
-    <table class="table">
+  <f action="" method="">
+    <table class="table" id="">
+      
       <thead>
         <tr>
           <th>ID</th>
@@ -41,42 +41,49 @@
             else 'BLOKED' }}
           </td>
           <td>
-            <select name="status" id="status">
-              <option value="">Select STATUS</option>
+            <select class="status">
+             
 
-              {% if request[7] == 1 %}
-              <option value="1" disabled>Requested</option>
-              <option value="2">APPROVED</option>
-              <option value="3">Bloked</option>
-              {%elif request[7]==2%}
-              <option value="1">Requested</option>
-              <option value="2" disabled>APPROVED</option>
-              <option value="3">Bloked</option>
+              {% if request[7] == 2 %}
+              <option value="{{request[1]}}"> Requested</option>
+              <option value="{{request[1]}}" selected disabled>APPROVED</option>
+              <option value="{{request[1]}}" Myfunction({{ request[0] }},4)>Bloked</option>
+              {%elif request[7]==1%}
+              <option value="{{request[1]}}" selected disabled>Requested</option>
+              <option value="{{request[1]}}" Myfunction({{ request[0] }},2)>APPROVED</option>
+              <option value="{{request[1]}}" Myfunction({{ request[0] }},4)>Bloked</option>
               {%else%}
-              <option value="1">Requested</option>
-              <option value="2">APPROVED</option>
-              <option value="3" disabled>Bloked</option>
+              <option value="{{request[1]}}" Myfunction({{ request[0] }},1)>
+                Requested
+              </option>
+              <option value="{{request[1]}}" Myfunction({{ request[0] }},2)>APPROVED</option>
+              <option value="{{request[1]}}" selected disabled>Bloked</option>
               {% endif %}
             </select>
           </td>
-
-          <!-- <td>
-            <a href="/edit_request/{{ request[0] }}/2" class="btn btn-primary"
-              >APPROVE</a
-            >
-          </td> -->
-          <!-- <td>
-            <a href="/edit_request/{{ request[0] }}/4" class="btn btn-danger"
-              >BLOCK</a
-            >
-          </td> -->
         </tr>
+        
         {% endfor %}
       </tbody>
     </table>
     <!-- <a href="/new_request">New Request</a> -->
+    
 
     <!--AJAX CODE-->
-    <script type="text/javascript"></script>
+    <script type="text/javascript">
+      // function Myfunction(id, status) {
+      //   alert(id);
+      // }
+
+      $(".status").change(function () {
+        var val = $(this).val();
+        
+        
+      });
+
+      // function hello() {
+      //   alert("ta");
+      // }
+    </script>
   </body>
 </html>
