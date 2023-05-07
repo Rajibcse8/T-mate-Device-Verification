@@ -45,19 +45,17 @@
              
 
               {% if request[7] == 2 %}
-              <option value="{{request[1]}}"> Requested</option>
-              <option value="{{request[1]}}" selected disabled>APPROVED</option>
-              <option value="{{request[1]}}" Myfunction({{ request[0] }},4)>Bloked</option>
+              <option value="{{request[1]}}/1"> Requested</option>
+              <option value="{{request[1]}}/2" selected disabled>APPROVED</option>
+              <option value="{{request[1]}}/4">Bloked</option>
               {%elif request[7]==1%}
-              <option value="{{request[1]}}" selected disabled>Requested</option>
-              <option value="{{request[1]}}" Myfunction({{ request[0] }},2)>APPROVED</option>
-              <option value="{{request[1]}}" Myfunction({{ request[0] }},4)>Bloked</option>
+              <option value="{{request[1]}}/1" selected disabled>Requested</option>
+              <option value="{{request[1]}}/2">APPROVED</option>
+              <option value="{{request[1]}}/4">Bloked</option>
               {%else%}
-              <option value="{{request[1]}}" Myfunction({{ request[0] }},1)>
-                Requested
-              </option>
-              <option value="{{request[1]}}" Myfunction({{ request[0] }},2)>APPROVED</option>
-              <option value="{{request[1]}}" selected disabled>Bloked</option>
+              <option value="{{request[1]}}/1">Requested</option>
+              <option value="{{request[1]}}/2">APPROVED</option>
+              <option value="{{request[1]}}/4" selected disabled>Bloked</option>
               {% endif %}
             </select>
           </td>
@@ -77,6 +75,10 @@
 
       $(".status").change(function () {
         var val = $(this).val();
+        var status=val.slice(-1);
+        var device_id=val.slice(0,val.length-2);
+        
+        alert(device_id + '  ' + status)
         
         
       });
