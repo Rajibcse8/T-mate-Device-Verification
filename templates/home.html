@@ -11,7 +11,7 @@
     <title>Requests</title>
   </head>
   <f action="" method="">
-    <table class="table" id="">
+    <table class="table" id="mytable">
       
       <thead>
         <tr>
@@ -36,10 +36,13 @@
           <td>{{ request[4] }}</td>
           <td>{{ request[5] }}</td>
           <td>{{ request[6] }}</td>
-          <td>
+
+          <!-- <td>{{request[7]}}</td> -->
+         <td id="statusText">
             {{ 'Requested' if request[7]==1 else 'APPROVED' if request[7]==2
             else 'BLOKED' }}
-          </td>
+          </td> 
+
           <td>
             <select class="status">
              
@@ -74,14 +77,49 @@
       // }
 
       $(".status").change(function () {
+
+        
         var val = $(this).val();
         var status=val.slice(-1);
-        var device_id=val.slice(0,val.length-2);
+        var request_id=val.slice(0,val.length-2);
+         
         
-        alert(device_id + '  ' + status)
-        
-        
+       //  alert(device_id + '  ' + status)
+        $.ajax({
+          url:"/updatestatus/"+status+"/"+request_id,
+          type:"PUT",
+          data:"",
+          success:function(response){
+            
+             console.log(response.message);
+            LoadData();
+            
+          },
+          error:function(error){
+          },
+
+        });        
       });
+
+      function LoadData(){
+
+         $.ajax({
+          type:'GET',
+          url:'/get_data',
+          data:{},
+          success:function(requests){
+
+            console.log(requests);
+            // $("#mytable").html(`    `);
+            
+          },
+
+         });
+        
+        
+         
+       
+      }
 
       // function hello() {
       //   alert("ta");

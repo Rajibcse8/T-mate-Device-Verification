@@ -1,5 +1,6 @@
 
 import random
+import sys
 import uuid
 
 import mariadb
@@ -9,6 +10,10 @@ from flask import Flask, json, jsonify, redirect, render_template, request
 app = Flask(__name__)
 
 # Connect to MariaDB
+
+
+# Instantiate Connection
+
 
 conn = mariadb.connect(
     host='127.0.0.1',
@@ -110,7 +115,7 @@ def edit(id, status):
         query = "UPDATE requests SET status=%s,register_token=%s WHERE id=%s "
         values = (status, register_token, id)
         cursor.execute(query, values)
-        conn.commit()
+        cursor.commit()
         cursor.close()
         return jsonify({'message': 'Request APPROVED successfully!',
                         'register_token': register_token})
@@ -120,11 +125,71 @@ def edit(id, status):
         query = "UPDATE requests SET status=%s,register_token=%s WHERE id=%s "
         values = (status, ' ', id)
         cursor.execute(query, values)
+        cursor.commit()
+        cursor.close()
+        return jsonify({'message': 'Request BLOCKED'})
+# -----------------------------------------------------------------------------------------
+# Ajax-Code--------Update Status-----------------------------------------------------------
+
+
+@app.route('/updatestatus/<int:status>/<int:request_id>', methods=['PUT'])
+def updatestatus(status, request_id):
+
+    # cursor = conn.cursor()
+    # query = "UPDATE requests SET status=%s WHERE request_id=%s"
+    # value = (status, request_id)
+    # cursor.execute(query, value)
+    # conn.commit()
+    # cursor.close()
+    # return jsonify({'message': 'success'})
+    #  request_id = request.form['request_id']
+    # status = request.form['status']
+    if (status == 2):
+
+        register_token = (str(uuid.uuid4())[0:8])
+        cursor = conn.cursor()
+        query = "UPDATE requests SET status=%s,register_token=%s WHERE request_id=%s "
+        values = (status, register_token, request_id)
+        cursor.execute(query, values)
+        conn.commit()
+        cursor.close()
+        return jsonify({'message': 'Request APPROVED successfully!',
+
+                        })
+        # 'register_token': register_token})
+        # return jsonify({'message': status})
+
+    elif (status == 4):
+        cursor = conn.cursor()
+        query = "UPDATE requests SET status=%s,register_token=%s WHERE request_id=%s "
+        values = (status, ' ', request_id)
+        cursor.execute(query, values)
         conn.commit()
         cursor.close()
         return jsonify({'message': 'Request BLOCKED'})
 
+    else:
 
+        cursor = conn.cursor()
+        query = "UPDATE requests SET status=%s,register_token=%s WHERE request_id=%s "
+        values = (status, ' ', request_id)
+        cursor.execute(query, values)
+        conn.commit()
+        cursor.close()
+        return jsonify({'message': 'Requested'})
+        # return jsonify({'message': status})
+
+ # ---------------------AJAX FECTH DATA----------------------------------------------------
+
+
+@app.route('/get_data', methods=['GET'])
+def get_data():
+    cursor = conn.cursor()
+    query = "SELECT * FROM requests"
+    return
+
+
+# -----------------------------------------------------------------------------------------
     # create app instance
 if __name__ == '__main__':
     app.run(host='127.0.0.1',
