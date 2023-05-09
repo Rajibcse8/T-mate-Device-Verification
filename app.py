@@ -4,10 +4,14 @@ import sys
 import uuid
 
 import mariadb
+# from flask_paginate import Pagination, args, get_page
 # import pymysql
-from flask import Flask, json, jsonify, redirect, render_template, request
+from flask import (Blueprint, Flask, json, jsonify, redirect, render_template,
+                   request)
+from flask_paginate import Pagination, get_page_parameter
 
 app = Flask(__name__)
+users = list(range(200))
 
 # Connect to MariaDB
 
@@ -48,6 +52,7 @@ cursor.close()
 
 # Show all the request
 
+
 @app.route('/request', methods=['GET'])
 def requests():
     cursor = conn.cursor()
@@ -56,9 +61,14 @@ def requests():
     cursor.close()
     return render_template('home.html', requests=requests)
 
-# --------------------------------------------------------------------
+# ------------------------------Pagination-----------------------------
 
-# Add Requests-------------------------------------------------------
+
+def get_users(offset=0, per_page=10):
+    return users[offset: offset+per_page]
+
+
+# Add Requests--------------------------------------------------------
 
 
 @app.route('/addrequests', methods=['GET', 'POST'])
