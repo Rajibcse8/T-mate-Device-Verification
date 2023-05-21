@@ -4,20 +4,17 @@ import sys
 import uuid
 
 import mariadb
-# from flask_paginate import Pagination, args, get_page
 # import pymysql
 from flask import (Blueprint, Flask, json, jsonify, redirect, render_template,
                    request)
-from flask_paginate import Pagination, get_page_parameter
+from flask_paginate import Pagination, get_page_args
 
 app = Flask(__name__)
-users = list(range(200))
 
 # Connect to MariaDB
 
 
 # Instantiate Connection
-
 
 conn = mariadb.connect(
     host='127.0.0.1',
@@ -53,19 +50,29 @@ cursor.close()
 # Show all the request
 
 
+@app.route('/', methods=['GET'])
+def index():
+    result = {'status': 'invalid'}
+
+    return jsonify(result)
+
+
 @app.route('/request', methods=['GET'])
 def requests():
+
+    page, per_page, offset = get_page_args(
+        page_parameter="page", per_page_parameter="per_page")
+
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM requests")
     requests = cursor.fetchall()
     cursor.close()
+
+    total = len(requests)
+
     return render_template('home.html', requests=requests)
 
 # ------------------------------Pagination-----------------------------
-
-
-def get_users(offset=0, per_page=10):
-    return users[offset: offset+per_page]
 
 
 # Add Requests--------------------------------------------------------
@@ -191,18 +198,52 @@ def updatestatus(status, request_id):
 
  # ---------------------AJAX FECTH DATA----------------------------------------------------
 
+# SIR CREATED THIS METHOD
+
+
+@app.route('/api/t-mate/RegisterDevice', methods=['GET', 'POST'])
+def register():
+    result = {
+        'status': 'invalid_request'
+    }
+
+    if request.method == 'POST':
+        if request.is_json:
+            content = request.get_json()
+            print(content)
+
+            # print("device-id: ", dev_id)
+
+            result = {
+                'status': 'not_allowed'
+            }
+
+    # elif request.method == 'GET':
+    #    print("...")
+
+    return jsonify(result)
+
 
 @app.route('/get_data', methods=['GET'])
 def get_data():
     cursor = conn.cursor()
     query = "SELECT * FROM requests"
     return
+# ----------------------AJAX EDIT AND UPDATE-----------------------------------------------
+
+
+@app.route('/ajax-edit', methods=['POST'])
+def ajaxedit(request_id):
+    request_id = request.form['request_id']
+
+    result = {'request_id': request_id}
+    return jsonify(result)
 
 
 # -----------------------------------------------------------------------------------------
     # create app instance
 if __name__ == '__main__':
-    app.run(host='127.0.0.1',
+    app.run(host='0.0.0.0',
             port=8080,
             debug=True,
             threaded=True,

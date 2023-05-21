@@ -25,11 +25,12 @@
           <th>Requester Contact</th>
           <th>STATUS</th>
           <th>Action</th>
+          <th>EDIT</th>
         </tr>
       </thead>
       <tbody>
         {% for request in requests %}
-        <tr>
+        <tr id="dynamic{{request[1]}}">
           <td>{{ request[0] }}</td>
           <td>{{ request[1] }}</td>
           <td>{{ request[2] }}</td>
@@ -63,24 +64,86 @@
               {% endif %}
             </select>
           </td>
+
+
+          <td>
+            <button
+            type="button"
+            class="btn btn-primary"
+            id="edit-request{{request[1]}}"
+            data-toggle="modal"
+            data-target="#editRequestModal{{request[1]}}">
+           
+            Edit
+          </button>
+ 
+
+          </td>
         </tr>
+
+
+
+<!--MOddal-->
+        <div class="modal fade" id="editRequestModal{{request[1]}}" role="dialog" class="col-md-8">
+          <div class="modal-dialog modal-sm vertical-align-center">
+            <div class="modal-content">
+              <!-- <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h3 class="modal-title">EDIT AND UPDATE</h3>
+              </div> -->
+              <div class="modal-body">
+                 
+                <form action="" class="edit-form"  >
+
+                  <div class="form-group">
+                    <label for="">Request ID:</label>
+                    <input type="text" class="form-control" name="request_id{{request[1]}}" value="{{request[1]}}" readonly/>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="">Device ID:</label>
+                    <input type="text" class="form-control" name="device_id{{request[1]}}" id="" value="{{ request[2] }}" readonly/>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="">Garden ID:</label>
+                    <input type="text" class="form-control" name="garden_id{{request[1]}}" value="{{request[4]}}" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="">Requser name:</label>
+                    <input type="text" class="form-control" name="requester_name{{request[1]}}" value="{{request[5]}}" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="">Requster Contact:</label>
+                    <input type="text" class="form-control" name="requester_contact{{request[1]}}" value="{{request[6]}}" required/>
+                  </div>
+
+                  <input type="submit" class="btn btn-primary edit-submit-btn" data-dismiss="modal" 
+                  id="EditandUpadte"  onclick='editandupdate("{{request[1]}}")' >
+          
+                </form>
+
+                  
+              </div>
+              <div class="modal-footer">
+                  <button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+              </div>
+            </div>
+          </div>
+      </div>
+ <!--end Modal-->     
         
         {% endfor %}
       </tbody>
-    </table>
-    <!-- <a href="/new_request">New Request</a> -->
-    <!-- <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-      </ul>
-    </nav> -->
-      
+    </table>    
   </div>
-    
+
+  <hr>
+
+  <button class="btn btn-primary">ADD NEW</button>
+
 
     <!--AJAX CODE-->
     <script type="text/javascript">
@@ -106,9 +169,7 @@
           success:function(response){
 
             $("#"+request_id).text(status ==1 ? 'Requested': status==2 ? 'APPROVED': 'Bloked')            
-            
-             
-            
+    
           },
           error:function(error){
            
@@ -117,29 +178,48 @@
         });        
       });
 
-      function LoadData(){
-
-         $.ajax({
-          type:'GET',
-          url:'/get_data',
-          data:{},
-          success:function(requests){
-
-            console.log(requests);
-            // $("#mytable").html(`    `);
-            
-          },
-
-         });
-        
-        
-         
-       
-      }
-
-      // function hello() {
-      //   alert("ta");
-      // }
     </script>
+<!--Script for Edit  And Update  Modal -->
+<script type="text/javascript">
+
+
+function editandupdate(id){
+  
+  let request_id=$("imput[name=equest_id"+id+"]").val();
+  let device_id=$("input[name=device_id"+id+"]").val();
+  let garden_id=$("input[name=garden_id"+id+"]").val(); 
+  let requester_name=$("input[name=requester_name"+id+"]").val();
+  let requester_contact=$("input[name=requester_contact"+id+"]").val();
+  alert(garden_id + " " + requester_name + " " + requester_contact );
+
+  // $.ajax({
+  //  type:'POST',
+  //  url:'/ajaxeditandupdate',
+  //  data:'requst_id:request_id',
+  //  success:function(response){
+
+  //  },
+
+  //  failure:function(eror){
+
+  //  },
+
+  // });
+
+}
+
+      //  $(document).on("click", "#EditandUpadte", function () {
+        
+
+  //   var device_id=$("input[name=device_id]").val();
+
+
+
+
+</script>
+
+
+
+
   </body>
 </html>
