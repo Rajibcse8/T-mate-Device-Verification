@@ -7,7 +7,6 @@ import mariadb
 # import pymysql
 from flask import (Blueprint, Flask, json, jsonify, redirect, render_template,
                    request)
-from flask_paginate import Pagination, get_page_args
 
 app = Flask(__name__)
 
@@ -59,9 +58,6 @@ def index():
 
 @app.route('/request', methods=['GET'])
 def requests():
-
-    page, per_page, offset = get_page_args(
-        page_parameter="page", per_page_parameter="per_page")
 
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM requests")
@@ -232,11 +228,24 @@ def get_data():
 # ----------------------AJAX EDIT AND UPDATE-----------------------------------------------
 
 
-@app.route('/ajax-edit', methods=['POST'])
-def ajaxedit(request_id):
+@app.route('/ajaxeditandupdate', methods=['POST'])
+def ajaxeditandupdate():
+    # data = request.get_json()
+    # print(data)
+    # request_id = data['request_id']
     request_id = request.form['request_id']
+    garden_id = request.form['garden_id']
+    requester_name = request.form['requester_name']
+    requester_contact = request.form['requester_contact']
 
-    result = {'request_id': request_id}
+    cursor = conn.cursor()
+    query = 'UPDATE requests SET garden_id=%s,requester_name=%s,requester_contact=%s WHERE request_id=%s'
+    values = (garden_id, requester_name, requester_contact, request_id)
+    cursor.execute(query, values)
+    conn.commit()
+    cursor.close()
+
+    result = {'messege': 'Successful'}
     return jsonify(result)
 
 

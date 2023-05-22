@@ -35,9 +35,9 @@
           <td>{{ request[1] }}</td>
           <td>{{ request[2] }}</td>
           <td>{{ request[3] }}</td>
-          <td>{{ request[4] }}</td>
-          <td>{{ request[5] }}</td>
-          <td>{{ request[6] }}</td>
+          <td id="">{{ request[4] }}</td>
+          <td id="">{{ request[5] }}</td>
+          <td id="">{{ request[6] }}</td>
 
           <!-- <td>{{request[7]}}</td> -->
          <td id="{{request[1]}}">
@@ -121,7 +121,7 @@
                   </div>
 
                   <input type="submit" class="btn btn-primary edit-submit-btn" data-dismiss="modal" 
-                  id="EditandUpadte"  onclick='editandupdate("{{request[1]}}")' >
+                  id=""  onclick='editandupdate("{{request[1]}}")' >
           
                 </form>
 
@@ -185,41 +185,32 @@
 
 function editandupdate(id){
   
-  let request_id=$("imput[name=equest_id"+id+"]").val();
-  let device_id=$("input[name=device_id"+id+"]").val();
-  let garden_id=$("input[name=garden_id"+id+"]").val(); 
-  let requester_name=$("input[name=requester_name"+id+"]").val();
-  let requester_contact=$("input[name=requester_contact"+id+"]").val();
-  alert(garden_id + " " + requester_name + " " + requester_contact );
+  // var request_id=$("imput[name=equest_id"+id+"]").val();
+  var request_id=$("input[name=request_id"+id+"]").val();
+  var device_id=$("input[name=device_id"+id+"]").val();
+  var garden_id=$("input[name=garden_id"+id+"]").val(); 
+  var requester_name=$("input[name=requester_name"+id+"]").val();
+  var requester_contact=$("input[name=requester_contact"+id+"]").val();
+  //alert(garden_id + " " + requester_name + " " + requester_contact );
 
-  // $.ajax({
-  //  type:'POST',
-  //  url:'/ajaxeditandupdate',
-  //  data:'requst_id:request_id',
-  //  success:function(response){
+  $.ajax({
+ 
+   url:'/ajaxeditandupdate',
+   type:'POST',
+   data:{'request_id':request_id,'garden_id':garden_id,
+   'requester_name':requester_name ,'requester_contact': requester_contact},
+   
+   success:function(response){
+    alert(response.messege)
+   },
 
-  //  },
+   failure:function(eror){},
 
-  //  failure:function(eror){
-
-  //  },
-
-  // });
+  });
 
 }
 
-      //  $(document).on("click", "#EditandUpadte", function () {
-        
-
-  //   var device_id=$("input[name=device_id]").val();
-
-
-
-
 </script>
-
-
-
 
   </body>
 </html>
