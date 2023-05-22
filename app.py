@@ -245,7 +245,9 @@ def ajaxeditandupdate():
     conn.commit()
     cursor.close()
 
-    result = {'messege': 'Successful'}
+    result = {'messege': 'Successful',
+              'request_id': request_id, 'garden_id': garden_id,
+              'requester_name': requester_name, 'requester_contact': requester_contact}
     return jsonify(result)
 
 

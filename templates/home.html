@@ -35,9 +35,9 @@
           <td>{{ request[1] }}</td>
           <td>{{ request[2] }}</td>
           <td>{{ request[3] }}</td>
-          <td id="">{{ request[4] }}</td>
-          <td id="">{{ request[5] }}</td>
-          <td id="">{{ request[6] }}</td>
+          <td id="garden{{request[1]}}">{{ request[4] }}</td>
+          <td id="name{{request[1]}}">{{ request[5] }}</td>
+          <td id="contact{{request[1]}}">{{ request[6] }}</td>
 
           <!-- <td>{{request[7]}}</td> -->
          <td id="{{request[1]}}">
@@ -201,7 +201,11 @@ function editandupdate(id){
    'requester_name':requester_name ,'requester_contact': requester_contact},
    
    success:function(response){
-    alert(response.messege)
+    // alert(response.requester_name)
+    id=response.request_id;
+    $("#garden"+id).text(response.garden_id)
+    $("#name"+id).text(response.requester_name)
+    $("#contact"+id).text(response.requester_contact)
    },
 
    failure:function(eror){},
