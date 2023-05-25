@@ -198,6 +198,7 @@ def updatestatus(status, request_id):
 
 
 # -------------------------------------Api  test -----------------------------------------
+
 @app.route("/api/t-mate/RegisterDevice", methods=['GET', 'POST'])
 def teamate_register_device():
 
@@ -215,13 +216,6 @@ def teamate_register_device():
             device_id = content['device_id']
             request_id = content['request_id']
 
-            cursor = conn.cursor()
-            query = "SELECT * FROM requests WHERE request_id=%s AND device_id=%s"
-            value = (request_id, device_id)
-            cursor.execute(query, value)
-            result = cursor.fetchone()
-            cursor.close()
-
             # validity
             if device_id == "" or device_id == "None" or device_id is None:
                 return jsonify({
@@ -229,29 +223,27 @@ def teamate_register_device():
                 })
 
             # new registration request
-
             if (request_id == "" or request_id == "None" or request_id is None):
 
-                content = request.get_json()
-                device_id = content['device_id']
-                request_id = content['request_id']
+                flag = check_device(device_id)
+                if (flag == True):
+                    status = ReRegister(device_id)
+                    if (status == 1):
+                        RegisterExiststatus(device_id)
+                    else:
+                        updatestatus(device_id)
 
-                cursor = conn.cursor()
-                query = "SELECT * FROM requests WHERE device_id=%s"
-                value = (device_id,)
-                cursor.execute(query, value)
-                result = cursor.fetchone()
-                cursor.close()
-                if (result):
-                    return jsonify({
-                        'status': 'Device Exist'
-                    })
+                   # -TOdO : re-registration
+                   # register new device-----------------------------------------
                 else:
                     garden_id = content['garden_id']
                     company = content['organization']
                     requester_name = content['requester_name']
                     requester_contact = content['requester_contact']
+
                     request_id = (random.randint(1000, 9999))
+
+                    # new request. insert to db
                     cursor = conn.cursor()
                     query = "INSERT INTO requests (request_id,device_id,company,garden_id,requester_name,requester_contact,status) VALUES (%s,%s,%s,%s,%s,%s,%s)"
                     value = (request_id, device_id, company, garden_id,
@@ -259,44 +251,136 @@ def teamate_register_device():
                     cursor.execute(query, value)
                     conn.commit()
                     cursor.close()
+
                     result = {
                         "request_id": request_id,
                         "status": "requested"
                     }
                     return jsonify(result)
+            # 2nd request --------------------------------------------------------------------------------
 
-            # second time  request
+            else:
+                status = ChceckStatus(device_id, request_id)
+                if (status == 1):
+                    ReUpdatestatus(device_id)
+                else:
+                    UpdateStatus(status)
 
-            if (result[7] == 1):
+                return jsonify({'status': 'Hello'})
 
-                register_token = (str(uuid.uuid4())[0:8])
-                cursor = conn.cursor()
-                query = "UPDATE requests SET status=%s,register_token=%s WHERE request_id=%s "
-                values = (2, register_token, request_id)
-                print(request_id)
-                cursor.execute(query, values)
-                conn.commit()
-                cursor.close()
+        return jsonify(result)
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-                result = {
-                    "request_id": request_id,
-                    "reg_token": register_token,
-                    "status": "approved"
-                }
-                return jsonify(result)
+# check this device is found on database or not
 
-        return jsonify({
-            'status': 'bad request'
 
-        })
+def check_device(device_id):
 
-        # print("request_id not found. generating new request")
+    flag = False
+    cursor = conn.cursor()
+    query = "'SELECT * FROM requests WHERE device_id=%s'"
+    value = (device_id)
+    cursor.execute(query, value)
+    result = cursor.fetchone()
+    cursor.close()
+    if (result):
+        return True
+    return flag
 
-        # print("device_id not found. generating new request")
-        # if found, then provide existing reg-info
-        # if not, then generate the request_id
 
-        # else:  # got request id
+# -------------function  for reregistration  for existing device---------
+
+
+def ReRegister(device_id):
+    status = None
+    result = {'status': 'bad request'}
+    cursor = conn.cursor()
+    query = "SELECT * FROM requests WHERE device_id=%s"
+    value = (device_id)
+    cursor.execute(query, value)
+    result = cursor.fetchone()
+    cursor.close()
+    if (result):
+        status = result[7]
+        return status
+
+    return status
+
+
+# ------------Chceck Existing device Status-----------
+
+
+def RegisterExiststatus(device_id):
+    result = {'status': 'bad request'}
+    cursor = conn.cursor()
+    query = "SELECT * FROM requests WHERE device_id=%s"
+    value = (device_id)
+    cursor.execute(query, value)
+    result_obj = cursor.fecthone()
+    cursor.close()
+    if (result_obj):
+        return jsonify({'status': 'requested', 'request_id': result_obj[1]})
+
+    return jsonify(result)
+
+
+def ChceckStatus(device_id, request_id):
+    cursor = conn.cursor()
+    query = "SELECT * FROM requests WHERE device_id=%s AND request_id=%s"
+    value = (device_id, request_id)
+    cursor.execute(query, value)
+    result = cursor.fetchone()
+    cursor.close()
+    status = result[7]
+    return status
+
+# -----function  for  Update Status-----------------------------------------
+
+
+def UpdateStatus(device_id):
+
+    result = {'status': 'bad request'}
+
+    cursor = conn.cursor()
+    query = "SELECT * FROM requests WHERE device_id=%s"
+    value = (device_id)
+    cursor.execute(query, value)
+    result_obj = cursor.fetchone()
+    cursor.close()
+
+    if (result_obj[7] == 2):
+        result = {'request_id': result[1], 'register_token': result[8]}
+        return jsonify(result)
+    if (result_obj[7] == 4):
+        result = {
+            'status': 'Sorry ! '
+        }
+        return jsonify(result)
+
+    return jsonify(result)
+
+# -----------------------------------------------------------------
+
+# ------------------Update request device which status  is requested
+
+# ------call ReUpdatestatus----  status change for requested device--
+
+
+def ReUpdatestatus(device_id):
+
+    register_token = (str(uuid.uuid4())[0:8])
+    cursor = conn.cursor()
+    query = "UPDATE requests SET status=%s,register_token=%s WHERE device_id=%s "
+    values = (2, register_token, device_id)
+
+    cursor.execute(query, values)
+    conn.commit()
+    cursor.close()
+    result = {
+
+        "reg_token": register_token,
+        "status": "approved"
+    }
     return jsonify(result)
 
 
