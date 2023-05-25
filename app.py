@@ -5,8 +5,8 @@ import uuid
 
 import mariadb
 # import pymysql
-from flask import (Blueprint, Flask, json, jsonify, redirect, render_template,
-                   request)
+from flask import (Blueprint, Flask, Response, json, jsonify, redirect,
+                   render_template, request)
 
 app = Flask(__name__)
 
@@ -197,26 +197,106 @@ def updatestatus(status, request_id):
 # SIR CREATED THIS METHOD
 
 
-@app.route('/api/t-mate/RegisterDevice', methods=['GET', 'POST'])
-def register():
+# -------------------------------------Api  test -----------------------------------------
+@app.route("/api/t-mate/RegisterDevice", methods=['GET', 'POST'])
+def teamate_register_device():
+
+    encrypted_device_id = ""
+
     result = {
-        'status': 'invalid_request'
+        "status": "error"
     }
+
+    # token = request.headers.get('token')
 
     if request.method == 'POST':
         if request.is_json:
             content = request.get_json()
-            print(content)
+            device_id = content['device_id']
+            request_id = content['request_id']
 
-            # print("device-id: ", dev_id)
+            cursor = conn.cursor()
+            query = "SELECT * FROM requests WHERE request_id=%s AND device_id=%s"
+            value = (request_id, device_id)
+            cursor.execute(query, value)
+            result = cursor.fetchone()
+            cursor.close()
 
-            result = {
-                'status': 'not_allowed'
-            }
+            # validity
+            if device_id == "" or device_id == "None" or device_id is None:
+                return jsonify({
+                    "status": "invalid_request"
+                })
 
-    # elif request.method == 'GET':
-    #    print("...")
+            # new registration request
 
+            if (request_id == "" or request_id == "None" or request_id is None):
+
+                content = request.get_json()
+                device_id = content['device_id']
+                request_id = content['request_id']
+
+                cursor = conn.cursor()
+                query = "SELECT * FROM requests WHERE device_id=%s"
+                value = (device_id,)
+                cursor.execute(query, value)
+                result = cursor.fetchone()
+                cursor.close()
+                if (result):
+                    return jsonify({
+                        'status': 'Device Exist'
+                    })
+                else:
+                    garden_id = content['garden_id']
+                    company = content['organization']
+                    requester_name = content['requester_name']
+                    requester_contact = content['requester_contact']
+                    request_id = (random.randint(1000, 9999))
+                    cursor = conn.cursor()
+                    query = "INSERT INTO requests (request_id,device_id,company,garden_id,requester_name,requester_contact,status) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                    value = (request_id, device_id, company, garden_id,
+                             requester_name, requester_contact, 1)
+                    cursor.execute(query, value)
+                    conn.commit()
+                    cursor.close()
+                    result = {
+                        "request_id": request_id,
+                        "status": "requested"
+                    }
+                    return jsonify(result)
+
+            # second time  request
+
+            if (result[7] == 1):
+
+                register_token = (str(uuid.uuid4())[0:8])
+                cursor = conn.cursor()
+                query = "UPDATE requests SET status=%s,register_token=%s WHERE request_id=%s "
+                values = (2, register_token, request_id)
+                print(request_id)
+                cursor.execute(query, values)
+                conn.commit()
+                cursor.close()
+
+                result = {
+                    "request_id": request_id,
+                    "reg_token": register_token,
+                    "status": "approved"
+                }
+                return jsonify(result)
+
+        return jsonify({
+            'status': 'bad request'
+
+        })
+
+        # print("request_id not found. generating new request")
+
+        # print("device_id not found. generating new request")
+        # if found, then provide existing reg-info
+        # if not, then generate the request_id
+
+        # else:  # got request id
     return jsonify(result)
 
 
@@ -248,6 +328,63 @@ def ajaxeditandupdate():
     result = {'messege': 'Successful',
               'request_id': request_id, 'garden_id': garden_id,
               'requester_name': requester_name, 'requester_contact': requester_contact}
+    return jsonify(result)
+
+
+# ------------------Ajax Add manual------------------------------------------------------
+
+
+@app.route('/addmanualdata', methods=['POST'])
+def addmanualdata():
+
+    result = {'messege': 'bad request'}
+
+    if (request.method == 'POST'):
+        device_id = request.form['device_id']
+        company = request.form['company']
+        garden_id = request.form['garden_id']
+        requester_name = request.form['requester_name']
+        requester_contact = request.form['requester_contact']
+        cursor = conn.cursor()
+        query = 'SELECT * FROM requests WHERE device_id=%s'
+        value = (device_id,)
+        cursor.execute(query, value)
+        result = cursor.fetchone()
+        cursor.close()
+        if (result):
+            return jsonify({'messege': 'This device Already EXIST'})
+        else:
+            request_id = (random.randint(10000, 10000000))
+            cursor = conn.cursor()
+            query = "INSERT INTO requests (request_id,device_id,company,garden_id,requester_name,requester_contact,status) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            value = (request_id, device_id, company, garden_id,
+                     requester_name, requester_contact, 1)
+            cursor.execute(query, value)
+            conn.commit()
+            cursor.close()
+            return jsonify({'messege': 'Requested', 'request_id': request_id})
+
+    return jsonify(result)
+
+# ------------------------------------------------------------------------------------------------------
+
+# -------------------Ajac Code for delete request-------------------------------------------------------
+
+
+@app.route('/deletepost', methods=['DELETE'])
+def deletepost():
+    result = {'messege': 'bad request'}
+    if (request.method == 'DELETE'):
+        request_id = request.form['request_id']
+        cursor = conn.cursor()
+        query = "DELETE FROM requests WHERE request_id=%s"
+        values = (request_id,)
+        cursor.execute(query, values)
+        conn.commit()
+        cursor.close()
+
+        result = {'messege': 'Delete Successfully plese reload  the  page'}
+        return jsonify(result)
     return jsonify(result)
 
 

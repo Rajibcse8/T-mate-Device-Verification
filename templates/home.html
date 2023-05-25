@@ -12,7 +12,7 @@
   </head>
  
   <div class="container">
-    <table class="table" id="mytable">
+    <table class="table " id="mytable">
       
       <thead>
         <tr>
@@ -26,9 +26,10 @@
           <th>STATUS</th>
           <th>Action</th>
           <th>EDIT</th>
+          <th>Delete</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="loaddata">
         {% for request in requests %}
         <tr id="dynamic{{request[1]}}">
           <td>{{ request[0] }}</td>
@@ -76,14 +77,18 @@
            
             Edit
           </button>
- 
+          </td>
+          <td>
+            <button type="button" class="btn btn-danger" onclick="deleterequest('{{request[1]}}')">Delete
+
+            </button>
 
           </td>
         </tr>
 
 
 
-<!--MOddal-->
+<!--MOddal for EDIT And Update request data-->
         <div class="modal fade" id="editRequestModal{{request[1]}}" role="dialog" class="col-md-8">
           <div class="modal-dialog modal-sm vertical-align-center">
             <div class="modal-content">
@@ -142,25 +147,65 @@
 
   <hr>
 
-  <button class="btn btn-primary">ADD NEW</button>
+  <button class="btn btn-primary" data-target="#addrequestmodal"  data-toggle="modal">ADD NEW</button>
 
+  
+  <!--ADD Manual request Modal-->
+  <div class="modal fade" class="col-md-8" role="dialog" id="addrequestmodal">
+    <div class="modal-dialog modal-sm vertical-align-center">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form action="">
 
-    <!--AJAX CODE-->
+            <div class="form-group">
+              <label for="">Device id</label>
+              <input type="text" name="device_id" class="form-control"  required>
+            </div>
+
+            <div class="form-group">
+              <label for="">Company</label>
+              <input type="text" name="company" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label for="">Garden id</label>
+              <input type="text" class="form-control" name="garden_id" required >
+            </div>
+
+            <div class="form-group">
+              <label for="">Requester Name</label>
+              <input type="text" class="form-control" name="requester_name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="">Requester Contact</label>
+              <input type="text" class="form-control" name="requester_contact" required>
+            </div>
+
+            <div class="form-group">
+             
+              <input type="submit" class="btn btn-primary" id="addmanualdata" data-dismiss="modal">
+            </div>
+            
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-dismiss="modal" class="btn btn-danger">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End Manual Request  Modal-->
+  
+
+  <!--AJAX CODE  STATUS UPDATE-------------------------------------------------------------------------->
     <script type="text/javascript">
-      // function Myfunction(id, status) {
-      //   alert(id);
-      // }
-
+   
       $(".status").change(function () {
-
-        
+     
         var val = $(this).val();
         var status=val.slice(-1);
         var request_id=val.slice(0,val.length-2);
-        
-        //console.log(   )
-         
-        
        //  alert(device_id + '  ' + status)
         $.ajax({
           url:"/updatestatus/"+status+"/"+request_id,
@@ -168,23 +213,20 @@
           data:"",
           success:function(response){
 
-            $("#"+request_id).text(status ==1 ? 'Requested': status==2 ? 'APPROVED': 'Bloked')            
-    
+            $("#"+request_id).text(status ==1 ? 'Requested': status==2 ? 'APPROVED': 'Bloked')               
           },
-          error:function(error){
-           
+          error:function(error){           
           },
-
         });        
       });
 
     </script>
-<!--Script for Edit  And Update  Modal -->
+<!--AJAX CODE STATUS UPDATE END-------------------------------------------------------------------------->
+
+
+<!--Script for Edit  And Update  Modal ------------------------------------------------------------------>
 <script type="text/javascript">
-
-
-function editandupdate(id){
-  
+function editandupdate(id){  
   // var request_id=$("imput[name=equest_id"+id+"]").val();
   var request_id=$("input[name=request_id"+id+"]").val();
   var device_id=$("input[name=device_id"+id+"]").val();
@@ -194,12 +236,10 @@ function editandupdate(id){
   //alert(garden_id + " " + requester_name + " " + requester_contact );
 
   $.ajax({
- 
    url:'/ajaxeditandupdate',
    type:'POST',
    data:{'request_id':request_id,'garden_id':garden_id,
    'requester_name':requester_name ,'requester_contact': requester_contact},
-   
    success:function(response){
     // alert(response.requester_name)
     id=response.request_id;
@@ -207,14 +247,78 @@ function editandupdate(id){
     $("#name"+id).text(response.requester_name)
     $("#contact"+id).text(response.requester_contact)
    },
-
    failure:function(eror){},
+  });
+}
+</script>
+<!--Script END------------------------------------------------------------------------------------------->
 
+
+
+<!--Script for Add manual  data------------------------------------------------------------------->
+<script type="text/javascript">
+
+  $("#addmanualdata").on("click", function(e){
+    e.preventDefault();
+    var device_id=$("input[name=device_id]").val();
+    var company=$("input[name=company]").val();
+    var garden_id=$("input[name=garden_id]").val();
+    var requester_name=$("input[name=requester_name]").val();
+    var requester_contact=$("input[name=requester_contact]").val();
+
+
+    $.ajax({
+      type:"POST",
+      url:'/addmanualdata',
+      data:{'device_id':device_id,'company':company,'garden_id':garden_id,
+      'requester_name':requester_name,'requester_contact':requester_contact},
+      success:function(response){
+        
+
+         alert(response.messege)
+
+      },
+      error:function(error){},
+
+    })
+    
   });
 
-}
+
+
+
 
 </script>
+<!--End Script for Manual data--------------------------------------------------------------------->
 
-  </body>
+
+
+<!--Script for Delete  Request user data----------------------------------------------------------->
+<script type="text/javascript">
+  
+  function deleterequest(id){
+       //alert(id)
+       let confirmation= confirm("Are You  Sure To  delete  the User ?");
+       if(confirmation==true){
+           
+        $.ajax({
+          type:'DELETE',
+          url:'/deletepost',
+          data:{'request_id':id},
+          success:function(response){
+
+            alert(response.messege)
+
+          },
+          failure:function(error){},
+
+        })
+        
+       }
+  }
+</script>
+
+<!--Script for Delete  Request user data----------------------------------------------------------->
+
+</body>
 </html>
